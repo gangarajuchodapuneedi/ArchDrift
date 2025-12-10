@@ -37,9 +37,10 @@ from api.routes import router as api_router
 app = FastAPI(title="ArchDrift Backend", version="0.1.0")
 
 # Allow local frontends (React dev servers) to access the API during development.
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+origins = [ "*"
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+# 
 ]
 
 app.add_middleware(
