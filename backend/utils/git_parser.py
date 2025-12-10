@@ -5,6 +5,7 @@ commit metadata for architectural drift analysis.
 """
 
 import os
+import shutil
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse
@@ -44,56 +45,55 @@ def _ensure_safe_directory(repo_path: str) -> None:
         pass
 
 
-def clone_or_open_repo(repo_url: str, base_clone_dir: str) -> str:
-    """
-    Clone a Git repository or open an existing clone.
-
-    If the repository is already cloned locally (based on folder name derived
-    from repo_url), it will reuse the existing clone. Otherwise, it clones
-    the repository into the base_clone_dir.
-    """
+def _derive_repo_name(repo_url: str) -> str:
+    """Derive repository folder name from a Git URL."""
     if not repo_url or not repo_url.strip():
         raise ValueError("repo_url cannot be empty")
 
     parsed = urlparse(repo_url)
-    repo_name = os.path.basename(parsed.path).replace(".git", "")
+    repo_name = os.path.basename(parsed.path)
+    if repo_name.endswith(".git"):
+        repo_name = repo_name[:-4]
+
+    repo_name = repo_name.strip()
     if not repo_name:
         raise ValueError(f"Could not extract repository name from URL: {repo_url}")
 
+    return repo_name
+
+
+def clone_or_open_repo(repo_url: str, base_clone_dir: str) -> str:
+    """
+    Clone a Git repository or open an existing clone with self-healing.
+
+    - All clones live under base_clone_dir/<repo_name>.
+    - If the path exists but is not a valid Git repo, delete and re-clone.
+    """
     base_path = Path(base_clone_dir).resolve()
     base_path.mkdir(parents=True, exist_ok=True)
 
+    repo_name = _derive_repo_name(repo_url)
     repo_path = base_path / repo_name
     repo_path_str = str(repo_path)
 
-    # If repository already exists, verify it's a valid Git repo and return it
-    if repo_path.exists() and repo_path.is_dir():
+    if repo_path.exists():
+        _ensure_safe_directory(repo_path_str)
         try:
-            # Ensure Git trusts this directory
-            _ensure_safe_directory(repo_path_str)
             Repo(repo_path_str)
             return repo_path_str
-        except InvalidGitRepositoryError as e:
-            raise InvalidGitRepositoryError(
-                f"Directory {repo_path} exists but is not a valid Git repository. "
-                "Please remove it or use a different base_clone_dir."
+        except InvalidGitRepositoryError:
+            shutil.rmtree(repo_path, ignore_errors=True)
+
+    if not repo_path.exists():
+        _ensure_safe_directory(repo_path_str)
+        try:
+            Repo.clone_from(repo_url, repo_path_str)
+        except GitCommandError as e:
+            raise RuntimeError(
+                f"Failed to clone repository {repo_url} into {repo_path}: {e}"
             ) from e
 
-    # Clone the repository
-    try:
-        Repo.clone_from(repo_url, repo_path_str)
-        # Ensure Git trusts the newly cloned directory
-        _ensure_safe_directory(repo_path_str)
-        return repo_path_str
-    except GitCommandError as e:
-        # Wrap low-level Git error into a simpler exception
-        detail = getattr(e, "stderr", None) or str(e)
-        raise RuntimeError(
-            f"Failed to clone repository from {repo_url}: {detail}. "
-            "Please check the URL and ensure you have network access."
-        ) from e
-    except Exception as e:
-        raise OSError(f"Unexpected error while cloning repository: {str(e)}") from e
+    return repo_path_str
 
 
 def list_commits(
