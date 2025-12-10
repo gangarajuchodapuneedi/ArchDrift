@@ -42,7 +42,7 @@ origins = [ "*"
 #     "http://127.0.0.1:5173",
 # 
 ]
-
+#  explain why we allow all origins: we allow all origins because we are developing the backend and the frontend in the same machine
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
