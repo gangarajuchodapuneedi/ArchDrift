@@ -1,3 +1,5 @@
+import { getClassificationMeta } from "./classificationUtils";
+
 function DriftNode({ drift, index, isSelected, onClick }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -21,7 +23,9 @@ function DriftNode({ drift, index, isSelected, onClick }) {
     return typeMap[driftType] || driftType.charAt(0).toUpperCase() + driftType.slice(1).replace(/_/g, " ");
   };
 
-  const isPositive = drift.type === "positive";
+  const meta = getClassificationMeta(drift);
+  const isPositive = meta.tone === "positive";
+  const isNeutral = meta.tone === "neutral";
   const isLeft = index % 2 === 0;
 
   const handleKeyDown = (e) => {
@@ -53,20 +57,32 @@ function DriftNode({ drift, index, isSelected, onClick }) {
           {/* Node dot */}
           <span
             className={`drift-tree-node-dot w-2.5 h-2.5 rounded-full z-10 ${
-              isPositive ? "bg-emerald-500" : "bg-rose-500"
+              isPositive
+                ? "bg-emerald-500"
+                : isNeutral
+                ? "bg-amber-400"
+                : "bg-rose-500"
             } ${isSelected ? "ring-2 ring-offset-2 ring-offset-slate-950" : ""} ${
-              isPositive && isSelected ? "ring-emerald-500" : ""
-            } ${!isPositive && isSelected ? "ring-rose-500" : ""}`}
+              isPositive && isSelected
+                ? "ring-emerald-500"
+                : isNeutral && isSelected
+                ? "ring-amber-400"
+                : !isPositive && isSelected
+                ? "ring-rose-500"
+                : ""
+            }`}
           />
           
           {/* Branch line from node to card */}
           <span
             className={`drift-tree-node-branch absolute h-0.5 ${
-              isLeft 
-                ? "right-1/2 w-12" 
-                : "left-1/2 w-12"
+              isLeft ? "right-1/2 w-12" : "left-1/2 w-12"
             } ${
-              isPositive ? "bg-emerald-500/60" : "bg-rose-500/60"
+              isPositive
+                ? "bg-emerald-500/60"
+                : isNeutral
+                ? "bg-amber-400/60"
+                : "bg-rose-500/60"
             }`}
           />
         </div>
@@ -78,9 +94,13 @@ function DriftNode({ drift, index, isSelected, onClick }) {
           isSelected
             ? isPositive
               ? "bg-emerald-500/30 border-emerald-500"
+              : isNeutral
+              ? "bg-amber-500/20 border-amber-500"
               : "bg-rose-500/30 border-rose-500"
             : isPositive
             ? "bg-emerald-500/10 border-emerald-500/40 hover:bg-emerald-500/20"
+            : isNeutral
+            ? "bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/15"
             : "bg-rose-500/10 border-rose-500/40 hover:bg-rose-500/20"
         } border rounded-lg p-3 w-64 md:w-64 ${
           isLeft ? "md:mr-auto md:ml-16 ml-16" : "md:ml-auto md:mr-16 mr-16"
@@ -94,10 +114,12 @@ function DriftNode({ drift, index, isSelected, onClick }) {
             className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
               isPositive
                 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                : isNeutral
+                ? "bg-amber-500/20 text-amber-200 border border-amber-500/40"
                 : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
             }`}
           >
-            {drift.type}
+            {meta.label}
           </span>
           {/* Drift type badge */}
           {drift.driftType && (

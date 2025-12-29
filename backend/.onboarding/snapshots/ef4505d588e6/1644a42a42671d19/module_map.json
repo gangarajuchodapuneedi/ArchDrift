@@ -1,0 +1,24 @@
+{
+  "modules": [
+    {
+      "id": "src_allocation",
+      "roots": [
+        "src/allocation"
+      ]
+    },
+    {
+      "id": "tests",
+      "roots": [
+        "tests"
+      ]
+    },
+    {
+      "id": "src_setup_py",
+      "roots": [
+        "src/setup.py"
+      ]
+    }
+  ],
+  "unmapped_module_id": "unmapped",
+  "version": "1.0"
+}

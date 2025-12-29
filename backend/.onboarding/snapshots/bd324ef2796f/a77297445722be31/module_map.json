@@ -1,0 +1,12 @@
+{
+  "modules": [
+    {
+      "id": "src_core",
+      "roots": [
+        "src/core"
+      ]
+    }
+  ],
+  "unmapped_module_id": "unmapped",
+  "version": "1.0"
+}

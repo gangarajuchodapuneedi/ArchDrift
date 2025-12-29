@@ -34,6 +34,17 @@ _DRIFTS: list[Drift] = [
             "Update architecture guidelines/ADR to reinforce 'API → Service → DB' rule.",
             "Add regression tests to cover API behaviour via the service layer.",
         ],
+        classification=None,
+        edges_added_count=0,
+        edges_removed_count=0,
+        forbidden_edges_added_count=0,
+        forbidden_edges_removed_count=0,
+        cycles_added_count=0,
+        cycles_removed_count=0,
+        baseline_hash=None,
+        rules_hash=None,
+        reason_codes=[],
+        evidence_preview=[],
     ),
     Drift(
         id="drift-002",
@@ -60,6 +71,17 @@ _DRIFTS: list[Drift] = [
             "Ensure new routes use the service layer instead of accessing DB directly.",
             "Document the new abstraction in architecture docs/ADR.",
         ],
+        classification=None,
+        edges_added_count=0,
+        edges_removed_count=0,
+        forbidden_edges_added_count=0,
+        forbidden_edges_removed_count=0,
+        cycles_added_count=0,
+        cycles_removed_count=0,
+        baseline_hash=None,
+        rules_hash=None,
+        reason_codes=[],
+        evidence_preview=[],
     ),
     Drift(
         id="drift-003",
@@ -86,6 +108,17 @@ _DRIFTS: list[Drift] = [
             "Refactor modules to remove circular imports (introduce a shared lower-level module if needed).",
             "Add an architecture rule to prevent circular dependencies in future.",
         ],
+        classification=None,
+        edges_added_count=0,
+        edges_removed_count=0,
+        forbidden_edges_added_count=0,
+        forbidden_edges_removed_count=0,
+        cycles_added_count=0,
+        cycles_removed_count=0,
+        baseline_hash=None,
+        rules_hash=None,
+        reason_codes=[],
+        evidence_preview=[],
     ),
     Drift(
         id="drift-004",
@@ -113,17 +146,58 @@ _DRIFTS: list[Drift] = [
             "Adopt DI for new services and routes to keep dependencies explicit.",
             "Add unit tests that inject test doubles for key collaborators.",
         ],
+        classification=None,
+        edges_added_count=0,
+        edges_removed_count=0,
+        forbidden_edges_added_count=0,
+        forbidden_edges_removed_count=0,
+        cycles_added_count=0,
+        cycles_removed_count=0,
+        baseline_hash=None,
+        rules_hash=None,
+        reason_codes=[],
+        evidence_preview=[],
     ),
 ]
+
+# In-memory storage for latest drifts from analyze-repo
+# This is updated by POST /analyze-repo and returned by GET /drifts if present
+_LATEST_DRIFTS: list[Drift] | None = None
+
+
+def set_latest_drifts(drifts: list[Drift]) -> None:
+    """
+    Store the latest drifts from analyze-repo.
+
+    Args:
+        drifts: List of Drift objects from the most recent analysis.
+    """
+    global _LATEST_DRIFTS
+    _LATEST_DRIFTS = drifts
+
+
+def get_latest_drifts() -> list[Drift] | None:
+    """
+    Get the latest drifts from analyze-repo, if any.
+
+    Returns:
+        list[Drift] | None: Latest drifts if available, None otherwise.
+    """
+    return _LATEST_DRIFTS
 
 
 def list_drifts() -> list[Drift]:
     """
     Return all drifts in chronological order (oldest first).
 
+    Returns latest_drifts if present (from analyze-repo), otherwise returns demo drifts.
+
     Returns:
         list[Drift]: List of all drifts sorted by date (ascending).
     """
+    # Return latest drifts if available, else fall back to demo drifts
+    if _LATEST_DRIFTS is not None:
+        return sorted(_LATEST_DRIFTS, key=lambda d: d.date)
     return sorted(_DRIFTS, key=lambda d: d.date)
 
 
@@ -137,6 +211,11 @@ def get_drift_by_id(drift_id: str) -> Drift | None:
     Returns:
         Drift | None: The drift if found, None otherwise.
     """
+    # Search latest drifts first, then fall back to demo drifts
+    if _LATEST_DRIFTS is not None:
+        for drift in _LATEST_DRIFTS:
+            if drift.id == drift_id:
+                return drift
     for drift in _DRIFTS:
         if drift.id == drift_id:
             return drift

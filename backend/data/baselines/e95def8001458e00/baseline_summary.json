@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "created_at_utc": "2025-12-27T13:14:02.575692+00:00",
+  "baseline_hash_sha256": "bd7597dc400535c48c326ee1fb36aed16b59ae187ce4041917fd48927c56c0e5",
+  "edge_count": 1,
+  "health": {
+    "edge_count": 1,
+    "included_files": 37,
+    "unmapped_files": 0,
+    "unmapped_ratio": 0.0,
+    "unresolved_imports": 0,
+    "top_unmapped_buckets": []
+  }
+}

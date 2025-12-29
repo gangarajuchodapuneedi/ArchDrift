@@ -1,0 +1,55 @@
+{"decision":"pass","rationale":"File is within acceptable size (252 lines).","timestamp":"2025-12-11T05:23:58.841Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (4 lines).","timestamp":"2025-12-11T06:47:26.546Z","file_path":"d:\\ArchDrift\\backend\\.gitignore"}
+{"decision":"pass","rationale":"File is within acceptable size (46 lines).","timestamp":"2025-12-11T06:47:27.764Z","file_path":"d:\\ArchDrift\\frontend\\src\\api\\client.js"}
+{"decision":"pass","rationale":"File is within acceptable size (341 lines).","timestamp":"2025-12-22T13:45:33.024Z","file_path":"d:\\ArchDrift\\backend\\services\\drift_engine.py"}
+{"decision":"pass","rationale":"File is within acceptable size (145 lines).","timestamp":"2025-12-22T13:45:38.696Z","file_path":"d:\\ArchDrift\\backend\\services\\drift_store.py"}
+{"decision":"pass","rationale":"File is within acceptable size (52 lines).","timestamp":"2025-12-23T05:40:57.279Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_classifier_mode.py"}
+{"decision":"pass","rationale":"File is within acceptable size (54 lines).","timestamp":"2025-12-23T05:40:58.816Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_git_parser.py"}
+{"decision":"pass","rationale":"File is within acceptable size (52 lines).","timestamp":"2025-12-23T05:40:59.764Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_classifier_mode.py"}
+{"decision":"pass","rationale":"File is within acceptable size (252 lines).","timestamp":"2025-12-23T06:31:58.358Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (252 lines).","timestamp":"2025-12-23T06:33:51.629Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (252 lines).","timestamp":"2025-12-23T06:34:30.387Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (252 lines).","timestamp":"2025-12-23T06:38:39.106Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (286 lines).","timestamp":"2025-12-23T06:41:16.277Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (286 lines).","timestamp":"2025-12-23T06:41:45.815Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (286 lines).","timestamp":"2025-12-23T07:00:34.348Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"warn","rationale":"File exceeds 400 lines (435 lines).","timestamp":"2025-12-23T07:28:06.992Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_baseline_api.py"}
+{"decision":"warn","rationale":"File exceeds 400 lines (435 lines).","timestamp":"2025-12-23T07:28:12.869Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_baseline_api.py"}
+{"decision":"warn","rationale":"File exceeds 400 lines (441 lines).","timestamp":"2025-12-23T07:29:25.784Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_baseline_api.py"}
+{"decision":"warn","rationale":"File exceeds 400 lines (441 lines).","timestamp":"2025-12-23T07:29:35.689Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_baseline_api.py"}
+{"decision":"warn","rationale":"File exceeds 400 lines (441 lines).","timestamp":"2025-12-23T07:30:07.012Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_baseline_api.py"}
+{"decision":"pass","rationale":"File is within acceptable size (21 lines).","timestamp":"2025-12-23T07:42:29.097Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (22 lines).","timestamp":"2025-12-23T07:42:31.905Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (23 lines).","timestamp":"2025-12-23T07:42:33.129Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (24 lines).","timestamp":"2025-12-23T07:42:34.699Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (25 lines).","timestamp":"2025-12-23T07:42:35.855Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (26 lines).","timestamp":"2025-12-23T07:42:37.012Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (27 lines).","timestamp":"2025-12-23T07:42:38.119Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (28 lines).","timestamp":"2025-12-23T07:42:39.551Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (29 lines).","timestamp":"2025-12-23T07:42:40.693Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (30 lines).","timestamp":"2025-12-23T07:42:42.224Z","file_path":"d:\\ArchDrift\\evidence\\receipts.log"}
+{"decision":"pass","rationale":"File is within acceptable size (7 lines).","timestamp":"2025-12-23T07:42:43.085Z","file_path":"d:\\ArchDrift\\backend\\requirements.txt"}
+{"decision":"pass","rationale":"File is within acceptable size (7 lines).","timestamp":"2025-12-23T07:42:43.456Z","file_path":"d:\\ArchDrift\\backend\\requirements.txt"}
+{"decision":"pass","rationale":"File is within acceptable size (66 lines).","timestamp":"2025-12-23T07:46:20.845Z","file_path":"d:\\ArchDrift\\frontend\\src\\api\\client.js"}
+{"decision":"pass","rationale":"File is within acceptable size (253 lines).","timestamp":"2025-12-23T07:49:36.635Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_cycle_detector.py"}
+{"decision":"pass","rationale":"File is within acceptable size (253 lines).","timestamp":"2025-12-23T07:50:54.429Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_cycle_detector.py"}
+{"decision":"pass","rationale":"File is within acceptable size (253 lines).","timestamp":"2025-12-23T07:50:59.806Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_cycle_detector.py"}
+{"decision":"pass","rationale":"File is within acceptable size (253 lines).","timestamp":"2025-12-23T07:51:09.441Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_cycle_detector.py"}
+{"decision":"pass","rationale":"File is within acceptable size (253 lines).","timestamp":"2025-12-23T07:51:14.694Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_cycle_detector.py"}
+{"decision":"pass","rationale":"File is within acceptable size (286 lines).","timestamp":"2025-12-23T10:02:03.908Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (4 lines).","timestamp":"2025-12-23T10:21:33.153Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\de2010943ef18a42\\baseline_edges.json"}
+{"decision":"pass","rationale":"File is within acceptable size (6 lines).","timestamp":"2025-12-23T10:22:11.556Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\eacf856a8f3a8c33\\baseline_edges.json"}
+{"decision":"pass","rationale":"File is within acceptable size (4 lines).","timestamp":"2025-12-23T10:27:08.278Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\de2010943ef18a42\\baseline_edges.json"}
+{"decision":"pass","rationale":"File is within acceptable size (6 lines).","timestamp":"2025-12-23T10:27:10.793Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\eacf856a8f3a8c33\\baseline_summary.json"}
+{"decision":"pass","rationale":"File is within acceptable size (6 lines).","timestamp":"2025-12-23T10:27:12.046Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\eacf856a8f3a8c33\\baseline_edges.json"}
+{"decision":"pass","rationale":"File is within acceptable size (4 lines).","timestamp":"2025-12-23T11:24:26.006Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\77e79891895c78e9\\baseline_edges.json"}
+{"decision":"pass","rationale":"File is within acceptable size (6 lines).","timestamp":"2025-12-23T11:24:27.053Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\77e79891895c78e9\\baseline_summary.json"}
+{"decision":"pass","rationale":"File is within acceptable size (6 lines).","timestamp":"2025-12-23T11:24:30.403Z","file_path":"d:\\ArchDrift\\backend\\data\\baselines\\471bc3a053a64a59\\baseline_summary.json"}
+{"decision":"pass","rationale":"File is within acceptable size (11 lines).","timestamp":"2025-12-24T10:16:14.954Z","file_path":"ms-vscode.powershell.PowerShell"}
+{"decision":"warn","rationale":"File exceeds 400 lines (452 lines).","timestamp":"2025-12-25T05:50:55.636Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"warn","rationale":"File exceeds 400 lines (452 lines).","timestamp":"2025-12-25T05:50:58.427Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"warn","rationale":"File exceeds 400 lines (452 lines).","timestamp":"2025-12-25T05:52:47.552Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"warn","rationale":"File exceeds 400 lines (452 lines).","timestamp":"2025-12-25T05:52:50.201Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"warn","rationale":"File exceeds 400 lines (452 lines).","timestamp":"2025-12-25T05:57:39.382Z","file_path":"d:\\ArchDrift\\howtorun.md"}
+{"decision":"pass","rationale":"File is within acceptable size (64 lines).","timestamp":"2025-12-26T13:25:35.344Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_onboarding_resolve_repo.py"}
+{"decision":"pass","rationale":"File is within acceptable size (64 lines).","timestamp":"2025-12-26T13:25:49.529Z","file_path":"d:\\ArchDrift\\backend\\tests\\test_onboarding_resolve_repo.py"}

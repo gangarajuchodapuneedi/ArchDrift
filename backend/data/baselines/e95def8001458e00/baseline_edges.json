@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "edges": [
+    {
+      "from": "tests",
+      "to": "src_allocation"
+    }
+  ]
+}

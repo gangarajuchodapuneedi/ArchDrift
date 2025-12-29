@@ -1,0 +1,13 @@
+{
+  "baseline_hash": "bd7597dc400535c48c326ee1fb36aed16b59ae187ce4041917fd48927c56c0e5",
+  "config_dir": "D:\\ArchDrift\\backend\\.onboarding\\configs\\ef4505d588e6\\suggested",
+  "created_at_utc": "2025-12-27T13:13:31.366814+00:00",
+  "created_by": null,
+  "module_map_sha256": "f6682087c4b882b0be344107f0a46365c00ee3ce5fbe6638a139b9b13eb674f8",
+  "note": null,
+  "repo_id": "ef4505d588e6",
+  "repo_path": "D:\\ArchDrift\\backend\\.repos\\code",
+  "rules_hash": "08e14b1e6b7568d0e9fef391f818ac152bb2ca39f6d12f6f542d1d65bba325b3",
+  "snapshot_id": "1644a42a42671d19",
+  "snapshot_label": "v1"
+}

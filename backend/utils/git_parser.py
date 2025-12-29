@@ -87,7 +87,9 @@ def clone_or_open_repo(repo_url: str, base_clone_dir: str) -> str:
     if not repo_path.exists():
         _ensure_safe_directory(repo_path_str)
         try:
-            Repo.clone_from(repo_url, repo_path_str)
+            # Use shallow clone (depth=1) for faster cloning of large repositories
+            # This only clones the latest commit, which is sufficient for most use cases
+            Repo.clone_from(repo_url, repo_path_str, depth=1)
         except GitCommandError as e:
             raise RuntimeError(
                 f"Failed to clone repository {repo_url} into {repo_path}: {e}"

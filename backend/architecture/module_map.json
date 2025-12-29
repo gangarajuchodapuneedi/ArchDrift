@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "unmapped_module_id": "unmapped",
+  "modules": [
+    { "id": "domain", "roots": ["src/allocation/domain"] },
+    { "id": "service_layer", "roots": ["src/allocation/service_layer"] },
+    { "id": "adapters", "roots": ["src/allocation/adapters"] },
+    { "id": "entrypoints", "roots": ["src/allocation/entrypoints"] },
+    { "id": "tests", "roots": ["tests"] }
+  ]
+}

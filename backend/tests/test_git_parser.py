@@ -38,11 +38,17 @@ def test_list_commits_not_a_directory():
     """Test that list_commits raises ValueError for non-directory path."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile_path = tmpfile.name
+    # File handle is closed after exiting 'with' block
+    try:
+        with pytest.raises(ValueError, match="Repository path is not a directory"):
+            list_commits(tmpfile_path)
+    finally:
+        # Use missing_ok=True to handle Windows file locking delays
         try:
-            with pytest.raises(ValueError, match="Repository path is not a directory"):
-                list_commits(tmpfile_path)
-        finally:
-            Path(tmpfile_path).unlink()
+            Path(tmpfile_path).unlink(missing_ok=True)
+        except PermissionError:
+            # On Windows, file might still be locked; ignore if already deleted
+            pass
 
 
 # Note: Full integration tests would require:

@@ -11,6 +11,111 @@ ArchDrift consists of two main components:
 
 You'll need two terminal windows: one for the backend and one for the frontend.
 
+## Conformance Quickstart
+
+ArchDrift supports two modes: **keywords mode** (legacy) and **conformance mode** (recommended). Conformance mode compares code structure against a baseline and rules.
+
+### Enable Conformance Mode
+
+Set the environment variable before starting the backend:
+
+**Windows (PowerShell):**
+```powershell
+$env:DRIFT_CLASSIFIER_MODE="conformance"
+uvicorn main:app --reload
+```
+
+**Linux/Mac:**
+```bash
+export DRIFT_CLASSIFIER_MODE=conformance
+uvicorn main:app --reload
+```
+
+### Generate and Approve Baseline
+
+Before analyzing, you need a baseline with edges:
+
+1. **Edit `backend/architecture/module_map.json`** to map your source paths to modules.
+2. **Generate baseline:**
+   ```bash
+   POST http://localhost:8000/baseline/generate
+   {
+     "repo_path": "/path/to/your/repo"
+   }
+   ```
+3. **Check `edge_count`** in response. If 0, fix `module_map.json` and regenerate.
+4. **Approve baseline:**
+   ```bash
+   POST http://localhost:8000/baseline/approve
+   {
+     "repo_path": "/path/to/your/repo",
+     "approved_by": "your-name@example.com"
+   }
+   ```
+
+### Check Baseline Health
+
+If you get `unknown` classifications or empty evidence:
+
+```bash
+GET http://localhost:8000/baseline/status?repo_path=/path/to/your/repo
+```
+
+Look for `baseline_health`:
+- If `baseline_ready = false`: Baseline has 0 edges → fix `module_map.json` and regenerate.
+- If `mapping_ready = false`: Too many unmapped files → add missing paths to `module_map.json`.
+- Check `next_actions` for specific guidance.
+
+See [Architecture Drift Documentation](docs/architecture_drift.md) for detailed steps and troubleshooting.
+
+**Note**: Keywords mode remains supported for legacy workflows. Set `DRIFT_CLASSIFIER_MODE=keywords` (or omit) to use commit message keyword detection.
+
+## Conformance Mode Quickstart (Windows)
+
+For beginners: use the bootstrap script to get classification badges without manual setup.
+
+### Step 1: Start Backend in Conformance Mode
+
+In PowerShell (Terminal 1):
+```powershell
+cd backend
+$env:DRIFT_CLASSIFIER_MODE="conformance"
+python -m uvicorn main:app --reload --port 8000
+```
+
+### Step 2: Run Bootstrap Script
+
+In a new PowerShell terminal (Terminal 2, same repo root):
+```powershell
+cd backend
+.\tools\bootstrap_conformance.ps1 -Port 8000
+```
+
+The script will:
+- Check backend health
+- Auto-discover or use default repo URL
+- Clone/open repo and get local path
+- Generate baseline if missing
+- Auto-approve baseline
+- Run analysis
+- Display results table
+
+### Step 3: View Results
+
+Start frontend and refresh browser to see classification badges (Needs Review / Unknown) in the drift timeline.
+
+**Custom Options:**
+```powershell
+# Use specific repo
+.\tools\bootstrap_conformance.ps1 -RepoUrl "https://github.com/user/repo" -Port 8000
+
+# Adjust analysis parameters
+.\tools\bootstrap_conformance.ps1 -MaxCommits 30 -MaxDrifts 10 -Port 8000
+
+# Skip auto-approval (manual approval required)
+.\tools\bootstrap_conformance.ps1 -AutoApprove $false -Port 8000
+```
+
 ## 1. Running the Backend (Terminal 1)
 
 ### Setup Steps
@@ -37,15 +142,27 @@ You'll need two terminal windows: one for the backend and one for the frontend.
    ```
 
 5. **Start the backend server**
+   
+   For localhost only:
    ```bash
    uvicorn main:app --reload
+   ```
+   
+   For network access (accessible from other devices on your network):
+   ```bash
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 ### Expected Output
 
-You should see logs like:
+For localhost:
 ```
 Uvicorn running on http://127.0.0.1:8000
+```
+
+For network access:
+```
+Uvicorn running on http://0.0.0.0:8000
 ```
 
 ✅ **Keep this terminal open and running.** The frontend will call this backend API.
@@ -69,20 +186,37 @@ Uvicorn running on http://127.0.0.1:8000
    ```
 
 4. **Start the frontend dev server**
+   
+   For localhost only:
    ```bash
    npm run dev
+   ```
+   
+   For network access (accessible from other devices on your network):
+   ```bash
+   npm run dev -- --host
    ```
 
 ### Expected Output
 
-The terminal will show something like:
+For localhost:
 ```
 VITE vX.X.X  ready in XXXX ms
 
 ➜  Local:   http://localhost:5173/
 ```
 
+For network access:
+```
+VITE vX.X.X  ready in XXXX ms
+
+➜  Local:   http://localhost:5173/
+➜  Network: http://192.168.x.x:5173/
+```
+
 ✅ **Keep this second terminal open as well.** The browser will connect to this URL.
+
+**Note:** When accessing via network IP, the frontend will automatically detect the hostname and connect to the backend on the same IP address (port 8000).
 
 ## 3. Opening the App in the Browser
 
@@ -102,6 +236,67 @@ The ArchDrift UI with:
 - **Analyze Repo** button
 - **Repo Health** bar (after analysis)
 - **Drift tree** on the left and a **detail panel** on the right
+
+## 6. Architecture drift modes
+
+There are two classifier modes:
+
+- **keywords** (default/legacy): sentiment from commit-message keywords (positive/negative). No conformance evidence.
+- **conformance**: deterministic, config-driven classification (positive/negative/needs_review/unknown/no_change) using architecture config + baselines. Commit messages are not read.
+
+### Running in keyword mode (default)
+No env var required (or set explicitly):
+```bash
+set DRIFT_CLASSIFIER_MODE=keywords
+uvicorn main:app
+```
+
+### Running in conformance mode
+```bash
+set DRIFT_CLASSIFIER_MODE=conformance
+uvicorn main:app
+```
+
+Architecture config (backend/architecture/):
+- `module_map.json`: maps repo paths to module IDs.
+- `allowed_rules.json`: allowed module-to-module edges.
+- `exceptions.json`: optional temporary exceptions.
+
+Baseline lifecycle (stored under `backend/data/baselines/<repo_id>/`):
+- Generate draft baseline: `POST /baseline/generate`
+- Approve baseline: `POST /baseline/approve`
+- Check status: `GET /baseline/status`
+
+Analyze a repo after baseline is accepted:
+```bash
+POST /analyze-repo
+{
+  "repo_url": "<git-url>",
+  "max_commits": 50,
+  "max_drifts": 5
+}
+```
+
+Classification (high level):
+- negative: forbidden edges added (cycles if enabled)
+- positive: forbidden edges removed
+- needs_review: only allowed edges changed
+- no_change: no edge deltas
+- unknown: baseline or rules missing
+
+Evidence fields (conformance mode):
+- `classification`, `reason_codes`
+- edge counts: `edges_added_count`, `edges_removed_count`
+- forbidden counts: `forbidden_edges_added_count`, `forbidden_edges_removed_count`
+- cycles counts: `cycles_added_count`, `cycles_removed_count`
+- hashes: `baseline_hash`, `rules_hash`
+- `evidence_preview` (top edge changes)
+
+Troubleshooting:
+- `classification=unknown`: baseline or rules missing.
+- Counts are zero but changes expected: `module_map` may not map the paths; or file type not supported by import extractors (supported: .py, .js, .jsx, .ts, .tsx).
+- Unsupported languages (e.g., Rust/Go) are not parsed unless an extractor is implemented.
+- Baseline shows 0 edges: widen `module_map.json` roots to include your source dirs, regenerate via `/baseline/generate`, then `/baseline/approve`.
 
 ## 4. How to Use the Prototype
 
@@ -229,15 +424,20 @@ You'll see a **"Copy as ticket"** button:
    .venv\Scripts\activate
    # Install dependencies
    pip install -r requirements.txt
-   # Start server
+   # Start server (localhost only)
    uvicorn main:app --reload
+   # OR for network access:
+   # uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 3. **Run Frontend in Terminal 2:**
    ```bash
    cd frontend
    npm install
+   # Start dev server (localhost only)
    npm run dev
+   # OR for network access:
+   # npm run dev -- --host
    ```
 
 4. **Open the app in the browser** (usually `http://localhost:5173/`)

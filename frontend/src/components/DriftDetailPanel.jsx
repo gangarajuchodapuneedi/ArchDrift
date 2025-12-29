@@ -1,8 +1,9 @@
 // Renders the MMM: Mirror + Mentor detail for a drift (what happened + what should I do next)
 // Multiplier: Copy as ticket button allows exporting drift info as a formatted issue body
 import { useState } from "react";
+import { getClassificationMeta } from "./classificationUtils";
 
-function DriftDetailPanel({ drift }) {
+function DriftDetailPanel({ drift, baselineStatus }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
@@ -42,7 +43,7 @@ function DriftDetailPanel({ drift }) {
   };
 
   // Multiplier: Build drift ticket body for copy-as-ticket functionality
-  const buildDriftTicketBody = (drift, formattedDate) => {
+  const buildDriftTicketBody = (drift, formattedDate, classificationLabel) => {
     const lines = [];
     const driftImpactLevel = drift.impactLevel ?? "unknown";
     const driftRiskAreas = drift.riskAreas ?? [];
@@ -52,7 +53,7 @@ function DriftDetailPanel({ drift }) {
     lines.push("");
     lines.push("## Mirror — What happened");
     lines.push(`- Date: ${formattedDate}`);
-    lines.push(`- Sentiment: ${drift.type}`);
+    lines.push(`- Classification: ${classificationLabel}`);
     if (drift.driftType) {
       lines.push(`- Type: ${formatDriftType(drift.driftType)}`);
     }
@@ -117,17 +118,37 @@ function DriftDetailPanel({ drift }) {
     );
   }
 
-  const isPositive = drift.type === "positive";
+  const classificationInfo = getClassificationMeta(drift);
+  const isPositive = classificationInfo.tone === "positive";
+  const isNeutral = classificationInfo.tone === "neutral";
   const impactLevel = drift.impactLevel ?? "unknown";
   const riskAreas = drift.riskAreas ?? [];
   const recommendedActions = drift.recommendedActions ?? [];
   const formattedDate = formatDate(drift.date);
+  const reasonCodes = drift.reason_codes ?? drift.reasonCodes ?? [];
+  const evidence = drift.evidence_preview ?? drift.evidence ?? [];
+  const baselineReasonCodes = ["BASELINE_MISSING", "BASELINE_EMPTY", "MAPPING_TOO_LOW", "NO_SOURCE_FILES"];
+  const reasonHasBaselineIssue = reasonCodes.some((r) => baselineReasonCodes.includes(r));
+  const baselineHealth = baselineStatus?.baseline_health;
+  const baselineNotReady =
+    !!baselineHealth && (baselineHealth.baseline_ready === false || baselineHealth.mapping_ready === false);
+  const unknownWithReason = classificationInfo.key === "unknown" && reasonHasBaselineIssue;
+  const showBaselineBanner = baselineNotReady || reasonHasBaselineIssue || unknownWithReason;
+
+  const nextActions =
+    (baselineHealth?.next_actions || []).slice(0, 3).filter(Boolean).length > 0
+      ? (baselineHealth?.next_actions || []).slice(0, 3).filter(Boolean)
+      : [
+          "Update module_map.json so files map to modules (src/, packages/, apps/).",
+          "POST /baseline/generate then POST /baseline/approve.",
+          "Re-run Analyze Repo in conformance mode.",
+        ];
 
   const [copyStatus, setCopyStatus] = useState("");
 
   async function handleCopyTicket() {
     try {
-      const body = buildDriftTicketBody(drift, formattedDate);
+      const body = buildDriftTicketBody(drift, formattedDate, classificationInfo.label);
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(body);
       } else {
@@ -148,8 +169,33 @@ function DriftDetailPanel({ drift }) {
     }
   }
 
+  const advantageText = (() => {
+    const raw = drift.advantage || "";
+    const lower = raw.toLowerCase();
+    const containsKeyword =
+      lower.includes("keyword") || lower.includes("commit message");
+    if (containsKeyword) {
+      return "Classification is based on architecture conformance evidence (edges/rules/cycles), not commit messages.";
+    }
+    return raw;
+  })();
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+      {showBaselineBanner && (
+        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-3 text-amber-100">
+          <div className="text-sm font-semibold">Baseline not ready</div>
+          <p className="text-sm text-amber-50/90 mt-1">
+            Conformance needs a real baseline + rules to compare. Generate + approve a baseline, then re-run analysis.
+          </p>
+          <ul className="list-disc list-inside text-sm text-amber-50/90 mt-2 space-y-1">
+            {nextActions.slice(0, 3).map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Header */}
       <div className="border-b border-slate-800 pb-4">
         <div className="flex items-center justify-between mb-2">
@@ -159,10 +205,12 @@ function DriftDetailPanel({ drift }) {
               className={`px-3 py-1 text-sm font-semibold rounded ${
                 isPositive
                   ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                  : isNeutral
+                  ? "bg-amber-500/20 text-amber-200 border border-amber-500/40"
                   : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
               }`}
             >
-              {drift.type}
+              {classificationInfo.label}
             </span>
             {/* Multiplier: Copy as ticket button */}
             <div className="flex items-center gap-2">
@@ -219,11 +267,11 @@ function DriftDetailPanel({ drift }) {
         <p className="text-slate-200">{drift.functionality}</p>
       </div>
 
-      {/* Advantage */}
-      {drift.advantage && (
+      {/* Advantage (only when evidence exists) */}
+      {advantageText && evidence && evidence.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-emerald-300 mb-1">Advantage</h3>
-          <p className="text-slate-200">{drift.advantage}</p>
+          <p className="text-slate-200">{advantageText}</p>
         </div>
       )}
 
@@ -278,6 +326,112 @@ function DriftDetailPanel({ drift }) {
           <p>Repository: {drift.repo_url}</p>
         </div>
       </div>
+
+      {/* Conformance Evidence */}
+      {(() => {
+        const showConformance = drift?.driftType === "architecture" && drift?.classifier_mode_used === "conformance";
+        if (!showConformance) {
+          return (
+            <div className="pt-4 border-t border-slate-800">
+              <p className="text-xs text-slate-400">Conformance evidence applies only to Architecture drifts.</p>
+            </div>
+          );
+        }
+        return (
+          <div className="pt-4 border-t border-slate-800 space-y-3">
+            <h3 className="text-sm font-semibold text-slate-300">Conformance Evidence</h3>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span
+                className={`px-2 py-0.5 rounded border ${
+                  classificationInfo.tone === "positive"
+                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
+                    : classificationInfo.tone === "neutral"
+                    ? "bg-amber-500/15 border-amber-500/40 text-amber-200"
+                    : "bg-rose-500/15 border-rose-500/40 text-rose-200"
+                }`}
+              >
+                {classificationInfo.label}
+              </span>
+              {reasonCodes.length > 0 && (
+                <span className="text-slate-300">Reasons: {reasonCodes.join(", ")}</span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-sm text-slate-200">
+              <div>Edges added: {drift.edges_added_count ?? 0}</div>
+              <div>Edges removed: {drift.edges_removed_count ?? 0}</div>
+              <div>Forbidden added: {drift.forbidden_edges_added_count ?? 0}</div>
+              <div>Forbidden removed: {drift.forbidden_edges_removed_count ?? 0}</div>
+              <div>Cycles added: {drift.cycles_added_count ?? 0}</div>
+              <div>Cycles removed: {drift.cycles_removed_count ?? 0}</div>
+            </div>
+
+            {(drift.baseline_hash || drift.rules_hash) && (
+              <div className="text-xs text-slate-400 space-y-1">
+                {drift.baseline_hash && <div>Baseline hash: {drift.baseline_hash}</div>}
+                {drift.rules_hash && <div>Rules hash: {drift.rules_hash}</div>}
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                Evidence (top 10)
+              </h4>
+              {(() => {
+                // Calculate total violation count
+                const forbiddenAdded = drift.forbidden_edges_added_count ?? 0;
+                const forbiddenRemoved = drift.forbidden_edges_removed_count ?? 0;
+                const cyclesAdded = drift.cycles_added_count ?? 0;
+                const cyclesRemoved = drift.cycles_removed_count ?? 0;
+                const totalViolations = forbiddenAdded + forbiddenRemoved + cyclesAdded + cyclesRemoved;
+                
+                // If all counts are 0, show neutral message
+                if (totalViolations === 0) {
+                  return (
+                    <p className="text-xs text-slate-400">No conformance violations detected for this commit.</p>
+                  );
+                }
+                
+                // If counts > 0 but evidence is missing, show error message
+                if (totalViolations > 0 && (!evidence || evidence.length === 0)) {
+                  return (
+                    <p className="text-xs text-amber-400">
+                      Evidence missing (unexpected). Please re-run analysis or report a bug.
+                    </p>
+                  );
+                }
+                
+                // If evidence exists, render it
+                if (evidence && evidence.length > 0) {
+                  return (
+                    <ul className="space-y-1">
+                      {evidence.slice(0, 10).map((ev, idx) => (
+                        <li key={idx} className="text-xs text-slate-200 border border-slate-800 rounded px-2 py-1">
+                          <div className="flex flex-wrap gap-2">
+                            {ev.direction && (
+                              <span className="font-semibold">
+                                {ev.direction === "added" ? "Added" : "Removed"}
+                              </span>
+                            )}
+                            <span>{ev.from_module} → {ev.to_module}</span>
+                          </div>
+                          <div className="text-slate-400">{ev.src_file}</div>
+                          {ev.import_text && <div className="text-slate-400 italic">import: {ev.import_text}</div>}
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                }
+                
+                // Fallback (should not reach here)
+                return (
+                  <p className="text-xs text-slate-400">No evidence provided.</p>
+                );
+              })()}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
